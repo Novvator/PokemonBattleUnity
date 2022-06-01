@@ -11,8 +11,10 @@ public class BattleSystem : MonoBehaviour
     public GameObject enemyPrefab;
 
     public Transform playerBattleStation;
-    public Transform enemyBattleStation;
+    public GameObject enemyBattleStationPrefab;
 
+    Vector3 offscreenVector = new Vector3(12,1,0);
+    Vector3 bsVector = new Vector3(4.5f,1,0);
     Unit playerUnit;
     Unit enemyUnit;
 
@@ -29,17 +31,25 @@ public class BattleSystem : MonoBehaviour
     }
 
     IEnumerator SetupBattle() {
-        
+
         GameObject playerGO = Instantiate(playerPrefab, playerBattleStation);
         playerUnit = playerGO.GetComponent<Unit>();
 
-        GameObject enemyGO = Instantiate(enemyPrefab, enemyBattleStation);
+        
+        GameObject enemyBS = Instantiate(enemyBattleStationPrefab,offscreenVector,new Quaternion(0,0,0,0));
+        GameObject enemyGO = Instantiate(enemyPrefab, enemyBS.transform);
         enemyUnit = enemyGO.GetComponent<Unit>();
 
         dialogueText.text = "A wild " + enemyUnit.unitName + " approaches!";
 
         playerHUD.SetHUD(playerUnit);
         enemyHUD.SetHUD(enemyUnit);
+        
+        while(Vector3.Distance(enemyBS.transform.position, bsVector)!=0) {
+            
+            enemyBS.transform.position = Vector3.MoveTowards(enemyBS.transform.position,bsVector, 3.5f*Time.deltaTime);
+            yield return null;
+        }
 
         yield return new WaitForSeconds(2f);
 
